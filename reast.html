@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Information</title>
+</head>
+<body>
+  <h2>My Information</h2>
+  <p><b>Name:</b> Md Asraful Islam</p>
+  <p><b>Email:</b> example@gmail.com</p>
+  <p><b>Phone:</b> 0123456789</p>
+</body><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countries & Meals</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <h1>All Countries</h1>
+  <button onclick="fetchCountries()">Load Countries</button>
+  <div id="countries"></div>
+
+  <br><br><br><br>
+
+  <h1>Search Meal</h1>
+  <input type="text" id="searchInput" placeholder="Enter meal name...">
+  <button onclick="searchMeal()">Search</button>
+  <div id="meals"></div>
+
+<script>
+  // === Countries API ===
+  function fetchCountries() {
+    fetch("https://restcountries.com/v3.1/all")
+      .then(res => res.json())
+      .then(data => displayCountries(data))
+      .catch(error => console.error("Error:", error));
+  }
+
+  function displayCountries(countries) {
+    const countriesDiv = document.getElementById("countries");
+    countriesDiv.innerHTML = "";
+
+    countries.forEach(country => {
+      const div = document.createElement("div");
+      div.classList.add("country");
+
+      div.innerHTML = `
+        <h3>${country.name.common}</h3>
+        <p>Capital: ${country.capital ? country.capital[0] : "N/A"}</p>
+        <p>Region: ${country.region}</p>
+        <img src="${country.flags.png}" width="100">
+      `;
+
+      countriesDiv.appendChild(div);
+    });
+  }
+
+  // === Meals API ===
+  function searchMeal(defaultQuery) {
+    const query = defaultQuery || document.getElementById("searchInput").value.trim();
+    if (!query) {
+      alert("Please enter a meal name!");
+      return;
+    }
+
+    fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`)
+      .then(res => res.json())
+      .then(data => displayMeals(data.meals))
+      .catch(error => console.error("Error:", error));
+  }
+
+  function displayMeals(meals) {
+    const mealsDiv = document.getElementById("meals");
+    mealsDiv.innerHTML = "";
+
+    if (!meals) {
+      mealsDiv.innerHTML = "<p>No meals found!</p>";
+      return;
+    }
+
+    meals.forEach(meal => {
+      const mealDiv = document.createElement("div");
+      mealDiv.classList.add("meal");
+
+      mealDiv.innerHTML = `
+        <h2>${meal.strMeal}</h2>
+        <p><b>Category:</b> ${meal.strCategory}</p>
+        <p><b>Area:</b> ${meal.strArea}</p>
+        <img src="${meal.strMealThumb}" width="200">
+        <p><b>Instructions:</b> ${meal.strInstructions.slice(0,150)}...</p>
+      `;
+
+      mealsDiv.appendChild(mealDiv);
+    });
+  }
+
+  // Auto-load a default meal
+  window.onload = function() {
+    searchMeal("Arrabiata");
+  }
+</script>
+</body>
+</html>
+
+</html>

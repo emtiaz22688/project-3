@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Country Details on API Call</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #searchContainer {
+            margin: 20px;
+        
+        }
+
+        #searchInput {
+            width: 300px;
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        #container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            width: 250px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: #f9f9f9;
+        }
+
+        .card button {
+            padding: 5px 10px;
+            margin-top: 5px  ;
+            cursor: pointer;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .card button:hover {
+            background-color: #0056b3;
+        }
+
+        .details {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+     img{
+    
+        width: 300px;
+        margin: 10px;
+     }
+       
+     .container{
+      margin: 20px 491px 22px;
+     }
+     .const{
+
+     }
+    </style>
+</head>
+<body>
+      <div class="container">
+        <div class="const">
+            <img src="images/bunner.jpg" alt="">
+            <img src="images/porl.jpg" alt="">
+        </div>
+    </div>
+
+    <!--frist section end-->
+
+
+<h2>Search Country Details</h2>
+
+<div id="searchContainer">
+    <input type="text" id="searchInput" placeholder="দেশের নাম লিখুন..." onkeyup="searchCountry()">
+</div>
+
+<div id="container">Search a country to see details...</div>
+
+<script>
+let isFetching = false; // API কল ট্র্যাক করার জন্য
+
+async function searchCountry() {
+    const query = document.getElementById('searchInput').value.trim();
+    const container = document.getElementById('container');
+
+    if(query === "") {
+        container.innerHTML = "Search a country to see details...";
+        return;
+    }
+
+    if(isFetching) return; // আগের কল চললে নতুন কল হবে না
+    isFetching = true;
+
+    try {
+        // API কল: দেশের নাম দিয়ে সার্চ
+        let response = await fetch(`https://restcountries.com/v3.1/name/${query}`);
+        if(!response.ok) {
+            container.innerHTML = "কোনো দেশ পাওয়া যায়নি।";
+            isFetching = false;
+            return;
+        }
+
+        let countries = await response.json();
+        renderCountries(countries);
+
+    } catch(error) {
+        container.innerHTML = "কিছু ভুল হয়েছে: " + error;
+    }
+
+    isFetching = false;
+}
+
+// কার্ড তৈরি ও দেখানো
+function renderCountries(countries) {
+    const container = document.getElementById('container');
+    container.innerHTML = '';
+
+    countries.forEach((country, index) => {
+        let card = document.createElement('div');
+        card.classList.add('card');
+
+        card.innerHTML = `
+            <h3>${country.name.common}</h3>
+            <button onclick="toggleDetails('details-${index}')">View Details</button>
+            <div class="details" id="details-${index}">
+                <p><strong>Region:</strong> ${country.region}</p>
+                <p><strong>Capital:</strong> ${country.capital ? country.capital[0] : 'N/A'}</p>
+                <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
+                <p><strong>Area:</strong> ${country.area.toLocaleString()} km²</p>
+                <p><strong>Flag:</strong> <img src="${country.flags.png}" width="100"></p>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Toggle details দেখানো/লুকানো
+function toggleDetails(id) {
+    const detailsDiv = document.getElementById(id);
+    detailsDiv.style.display = (detailsDiv.style.display === 'block') ? 'none' : 'block';
+}
+</script>
+
+</body>
+</html>
